@@ -1,5 +1,6 @@
 package com.chev.weatherapp
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,10 +20,12 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -30,6 +34,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +45,10 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.chev.weatherapp.api.NetworkResponse
 import com.chev.weatherapp.api.WeatherModel
+import com.chev.weatherapp.ui.theme.Orange
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 
@@ -50,6 +60,45 @@ fun WeatherPage(viewModel: WeatherViewModel){
 
     val weatherResult = viewModel.weatherResult.observeAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
+    val (gradientBrush, textColor) = remember(weatherResult.value) {
+        when (weatherResult.value) {
+            is NetworkResponse.Success -> {
+                val localTimeString = (weatherResult.value as NetworkResponse.Success).data.location.localtime
+                val hour = getHourFromLocalTime(localTimeString)
+                when (hour) {
+                    in 6..17 -> {
+                        Pair(
+                            Brush.linearGradient(colors = listOf(Color.Cyan, Color.Blue)),
+                            Color.Black
+                        )
+                    }
+                    in 18..19 -> {
+                        Pair(
+                            Brush.linearGradient(colors = listOf(Orange, Color.Red)),
+                            Color.White
+                        )
+                    }
+                    else -> {
+                        Pair(
+                            Brush.linearGradient(colors = listOf(Color.DarkGray, Color.Black)),
+                            Color.White
+                        )
+                    }
+                }
+            }
+            else -> Pair(
+                Brush.linearGradient(colors = listOf(Color.White, Color.LightGray)),
+                Color.Black
+            )
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(brush = gradientBrush)
+            .padding(16.dp)
+    )
 
     Column(
         modifier = Modifier
@@ -61,39 +110,51 @@ fun WeatherPage(viewModel: WeatherViewModel){
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .padding(top = 32.dp),
+                .padding(top = 40.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ){
-            OutlinedTextField(
-                modifier = Modifier.weight(1f),
-                value = city,
-                onValueChange = {
-                city = it },
-                label = {
-                    Text(text = "Search for Any Location")
-                }
-            )
-            IconButton(onClick = {
-                viewModel.getData(city)
-                keyboardController?.hide()
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search for Any Locations"
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(20.dp))
+            ){
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = city,
+                    onValueChange = {
+                        city = it },
+                    label = {
+                        Text(text = "Search for Any Location", color = Color.Black)
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            viewModel.getData(city)
+                            keyboardController?.hide()
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search for Any Locations",
+                            )
+                        }
+                    }
                 )
             }
         }
 
         when(val result = weatherResult.value){
             is NetworkResponse.Error -> {
-                Text(text = result.message)
+                Text(text = result.message, color = textColor)
             }
             NetworkResponse.Loading -> {
                 CircularProgressIndicator()
             }
             is NetworkResponse.Success -> {
-                WeatherDetails(data = result.data)
+                WeatherDetails(data = result.data, textColor)
             }
             null -> {}
         }
@@ -101,7 +162,7 @@ fun WeatherPage(viewModel: WeatherViewModel){
 }
 
 @Composable
-fun WeatherDetails(data: WeatherModel){
+fun WeatherDetails(data: WeatherModel, textColor: Color){
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -113,7 +174,7 @@ fun WeatherDetails(data: WeatherModel){
         Row(
             modifier = Modifier
                 .padding(top = 8.dp)
-                .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(16.dp)),
+                .border(width = 1.dp, color = textColor, shape = RoundedCornerShape(16.dp)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
@@ -126,11 +187,12 @@ fun WeatherDetails(data: WeatherModel){
                 Icon(
                     modifier = Modifier.size(40.dp),
                     imageVector = Icons.Default.LocationOn,
-                    contentDescription ="Location Icon"
+                    contentDescription ="Location Icon" ,
+                    tint = textColor
                 )
-                Text(text = data.location.name, fontSize = 30.sp)
+                Text(text = data.location.name, fontSize = 30.sp, color = textColor)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = data.location.country, fontSize = 18.sp, color = Color.Gray)
+                Text(text = data.location.country, fontSize = 18.sp, color = textColor)
             }
         }
 
@@ -139,7 +201,8 @@ fun WeatherDetails(data: WeatherModel){
             text = "${data.current.temp_c}°c",
             fontSize = 56.sp,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = textColor
         )
         AsyncImage(
             modifier = Modifier.size(160.dp),
@@ -148,7 +211,7 @@ fun WeatherDetails(data: WeatherModel){
         )
         Text(
             text = data.current.condition.text,
-            color = Color.Gray,
+            color = textColor,
             fontSize = 20.sp,
             textAlign = TextAlign.Center
         )
@@ -190,4 +253,12 @@ fun WeatherKeyValue(key: String, value: String){
         Text(text = key, fontWeight = FontWeight.SemiBold, color = Color.Gray)
         Text(text = value, fontSize = 24.sp, fontWeight = FontWeight.Bold)
     }
+}
+
+fun getHourFromLocalTime(localTimeString: String): Int {
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+    val date = dateFormat.parse(localTimeString)
+    val calendar = Calendar.getInstance()
+    calendar.time = date
+    return calendar.get(Calendar.HOUR_OF_DAY)
 }
