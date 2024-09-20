@@ -1,5 +1,6 @@
 package com.chev.weatherapp
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
@@ -52,14 +54,14 @@ fun WeatherPage(viewModel: WeatherViewModel){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 24.dp)
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(8.dp)
+                .padding(top = 32.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ){
@@ -107,19 +109,29 @@ fun WeatherDetails(data: WeatherModel){
             .fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.weight(1f))
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(16.dp)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
-            Icon(
-                modifier = Modifier.size(40.dp),
-                imageVector = Icons.Default.LocationOn,
-                contentDescription ="Location Icon"
-            )
-            Text(text = data.location.name, fontSize = 30.sp)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = data.location.country, fontSize = 18.sp, color = Color.Gray)
+            Row(
+                modifier = Modifier
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Icon(
+                    modifier = Modifier.size(40.dp),
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription ="Location Icon"
+                )
+                Text(text = data.location.name, fontSize = 30.sp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = data.location.country, fontSize = 18.sp, color = Color.Gray)
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
