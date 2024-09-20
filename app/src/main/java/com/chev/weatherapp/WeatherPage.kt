@@ -1,9 +1,11 @@
 package com.chev.weatherapp
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,7 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -102,7 +103,8 @@ fun WeatherDetails(data: WeatherModel){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -127,25 +129,26 @@ fun WeatherDetails(data: WeatherModel){
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
-        
         AsyncImage(
             modifier = Modifier.size(160.dp),
             model = "https:${data.current.condition.icon}".replace("64x64", "128x128"),
             contentDescription = "Condition Icon"
         )
-
         Text(
             text = data.current.condition.text,
             color = Color.Gray,
             fontSize = 20.sp,
             textAlign = TextAlign.Center
         )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        Card {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ){
+        Spacer(modifier = Modifier
+            .height(16.dp)
+            .weight(1f))
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()){
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
@@ -164,6 +167,7 @@ fun WeatherDetails(data: WeatherModel){
         }
     }
 }
+
 
 @Composable
 fun WeatherKeyValue(key: String, value: String){
