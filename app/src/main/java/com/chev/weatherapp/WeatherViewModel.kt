@@ -18,8 +18,6 @@ class WeatherViewModel: ViewModel(){
     val weatherResult : LiveData<NetworkResponse<WeatherModel>> = _weatherResult
 
     fun getData(city: String){
-        Log.i("City Name: ", city)
-
         viewModelScope.launch {
             _weatherResult.value = NetworkResponse.Loading
             try {
@@ -40,4 +38,27 @@ class WeatherViewModel: ViewModel(){
         }
     }
 
+    private val cityRepository = RetrofitInstance.cityRepository
+    private val _cityList = MutableLiveData<NetworkResponse<WeatherModel>>()
+    val cityList : LiveData<NetworkResponse<WeatherModel>> = _cityList
+
+    fun searchCities(city: String) {
+        viewModelScope.launch {
+            _cityList.value = NetworkResponse.Loading
+            try {
+                val response = cityRepository.searchCities(Constant.apiKey, city)
+                if (response.isSuccessful){
+                    response.body()?.let {
+                        _cityList.value = NetworkResponse.Success(it)
+                    }
+                }
+                else{
+                    _cityList.value = NetworkResponse.Error("Failed to Search Data")
+                }
+            }
+            catch (e: Exception){
+                _cityList.value = NetworkResponse.Error("Failed to Search Data")
+            }
+        }
+    }
 }

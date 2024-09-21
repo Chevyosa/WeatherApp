@@ -11,4 +11,10 @@ interface WeatherAPI {
         @Query("key") apikey : String,
         @Query("q") city : String
     ) : Response<WeatherModel>
+
+    @GET("/v1/current.json")
+    suspend fun searchCities(
+        @Query("key") apikey : String,
+        @Query("q") city : String
+    ) : Response<WeatherModel>
 }

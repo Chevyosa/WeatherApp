@@ -16,4 +16,5 @@ object RetrofitInstance {
     }
 
     val weatherApi: WeatherAPI = getInstance().create(WeatherAPI::class.java)
+    val cityRepository: WeatherAPI = getInstance().create(WeatherAPI::class.java)
 }
