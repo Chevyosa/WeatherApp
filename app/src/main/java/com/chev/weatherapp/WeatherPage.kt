@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -34,9 +33,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -60,35 +60,39 @@ fun WeatherPage(viewModel: WeatherViewModel){
 
     val weatherResult = viewModel.weatherResult.observeAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
-    val (gradientBrush, textColor) = remember(weatherResult.value) {
+    val (gradientBrush, textColor, timePeriod) = remember(weatherResult.value) {
         when (weatherResult.value) {
             is NetworkResponse.Success -> {
                 val localTimeString = (weatherResult.value as NetworkResponse.Success).data.location.localtime
                 val hour = getHourFromLocalTime(localTimeString)
                 when (hour) {
-                    in 6..17 -> {
-                        Pair(
+                    in 6..11 -> {
+                        Triple(
                             Brush.linearGradient(colors = listOf(Color.Cyan, Color.Blue)),
-                            Color.Black
+                            Color.Black,
+                            "AM"
                         )
                     }
-                    in 18..19 -> {
-                        Pair(
+                    in 12..17 -> {
+                        Triple(
                             Brush.linearGradient(colors = listOf(Orange, Color.Red)),
-                            Color.White
+                            Color.White,
+                            "PM"
                         )
                     }
                     else -> {
-                        Pair(
+                        Triple(
                             Brush.linearGradient(colors = listOf(Color.DarkGray, Color.Black)),
-                            Color.White
+                            Color.White,
+                            "PM"
                         )
                     }
                 }
             }
-            else -> Pair(
+            else -> Triple(
                 Brush.linearGradient(colors = listOf(Color.White, Color.LightGray)),
-                Color.Black
+                Color.Black,
+                ""
             )
         }
     }
@@ -117,10 +121,12 @@ fun WeatherPage(viewModel: WeatherViewModel){
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(20.dp))
             ){
                 TextField(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(16.dp))
+                        .shadow(10.dp, RoundedCornerShape(16.dp)),
                     value = city,
                     onValueChange = {
                         city = it },
@@ -129,8 +135,11 @@ fun WeatherPage(viewModel: WeatherViewModel){
                     },
                     colors = TextFieldDefaults.colors(
                         focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
                     ),
+                    shape = RoundedCornerShape(16.dp),
                     trailingIcon = {
                         IconButton(onClick = {
                             viewModel.getData(city)
@@ -154,7 +163,7 @@ fun WeatherPage(viewModel: WeatherViewModel){
                 CircularProgressIndicator()
             }
             is NetworkResponse.Success -> {
-                WeatherDetails(data = result.data, textColor)
+                WeatherDetails(data = result.data, textColor, timePeriod)
             }
             null -> {}
         }
@@ -162,7 +171,7 @@ fun WeatherPage(viewModel: WeatherViewModel){
 }
 
 @Composable
-fun WeatherDetails(data: WeatherModel, textColor: Color){
+fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -187,13 +196,17 @@ fun WeatherDetails(data: WeatherModel, textColor: Color){
                 Icon(
                     modifier = Modifier.size(40.dp),
                     imageVector = Icons.Default.LocationOn,
-                    contentDescription ="Location Icon" ,
+                    contentDescription ="Location Icon",
                     tint = textColor
                 )
                 Text(text = data.location.name, fontSize = 30.sp, color = textColor)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = data.location.country, fontSize = 18.sp, color = textColor)
             }
+        }
+        Spacer(modifier = Modifier.padding(vertical = 8.dp))
+        Row {
+            Text(text = "Local Time: ${data.location.localtime.split(" ")[1]} $timePeriod", color = textColor)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
