@@ -197,7 +197,7 @@ fun WeatherPage(viewModel: WeatherViewModel){
                 )
             }
         }
-        AnimatedVisibility(visible = expanded) {
+        AnimatedVisibility(visible = expanded && city.isNotBlank()) {
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
@@ -216,7 +216,7 @@ fun WeatherPage(viewModel: WeatherViewModel){
                             val cities = result.data.location.name
                             val countries = result.data.location.country
                             items(listOf(cities)) { cityName ->
-                                CityItems(title = "$cityName", "$countries", viewModel) { selectedCity ->
+                                CityItems(title = cityName, countries, viewModel) { selectedCity ->
                                     city = selectedCity
                                     expanded = false
                                     viewModel.getData(selectedCity)
