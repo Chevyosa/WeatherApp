@@ -214,13 +214,17 @@ fun WeatherPage(viewModel: WeatherViewModel){
                     is NetworkResponse.Success -> {
                         LazyColumn(modifier = Modifier.fillMaxWidth()) {
                             val cities = result.data.location.name
+                            val countries = result.data.location.country
                             items(listOf(cities)) { cityName ->
-                                CityItems(title = cityName) { selectedCity ->
+                                CityItems(title = "$cityName", "$countries", viewModel) { selectedCity ->
                                     city = selectedCity
                                     expanded = false
+                                    viewModel.getData(selectedCity)
+                                    keyboardController?.hide()
                                 }
                             }
                         }
+
                     }
                     is NetworkResponse.Error -> {
                         Text(
@@ -254,6 +258,8 @@ fun WeatherPage(viewModel: WeatherViewModel){
 @Composable
 fun CityItems(
     title: String,
+    country: String,
+    viewModel: WeatherViewModel,
     onSelect: (String) -> Unit
 ){
     Column(
@@ -261,7 +267,7 @@ fun CityItems(
             .clickable { onSelect(title) }
             .padding(20.dp)
     ){
-        Text(text = title, fontSize = 16.sp)
+        Text(text = "${title}, ${country}", fontSize = 16.sp)
     }
 }
 
