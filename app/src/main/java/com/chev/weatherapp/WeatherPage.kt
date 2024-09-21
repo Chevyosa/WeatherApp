@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -60,35 +59,39 @@ fun WeatherPage(viewModel: WeatherViewModel){
 
     val weatherResult = viewModel.weatherResult.observeAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
-    val (gradientBrush, textColor) = remember(weatherResult.value) {
+    val (gradientBrush, textColor, timePeriod) = remember(weatherResult.value) {
         when (weatherResult.value) {
             is NetworkResponse.Success -> {
                 val localTimeString = (weatherResult.value as NetworkResponse.Success).data.location.localtime
                 val hour = getHourFromLocalTime(localTimeString)
                 when (hour) {
-                    in 6..17 -> {
-                        Pair(
+                    in 6..11 -> {
+                        Triple(
                             Brush.linearGradient(colors = listOf(Color.Cyan, Color.Blue)),
-                            Color.Black
+                            Color.Black,
+                            "AM"
                         )
                     }
-                    in 18..19 -> {
-                        Pair(
+                    in 12..17 -> {
+                        Triple(
                             Brush.linearGradient(colors = listOf(Orange, Color.Red)),
-                            Color.White
+                            Color.White,
+                            "PM"
                         )
                     }
                     else -> {
-                        Pair(
+                        Triple(
                             Brush.linearGradient(colors = listOf(Color.DarkGray, Color.Black)),
-                            Color.White
+                            Color.White,
+                            "PM"
                         )
                     }
                 }
             }
-            else -> Pair(
+            else -> Triple(
                 Brush.linearGradient(colors = listOf(Color.White, Color.LightGray)),
-                Color.Black
+                Color.Black,
+                "PM"
             )
         }
     }
@@ -154,7 +157,7 @@ fun WeatherPage(viewModel: WeatherViewModel){
                 CircularProgressIndicator()
             }
             is NetworkResponse.Success -> {
-                WeatherDetails(data = result.data, textColor)
+                WeatherDetails(data = result.data, textColor, timePeriod)
             }
             null -> {}
         }
@@ -162,7 +165,7 @@ fun WeatherPage(viewModel: WeatherViewModel){
 }
 
 @Composable
-fun WeatherDetails(data: WeatherModel, textColor: Color){
+fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -194,6 +197,10 @@ fun WeatherDetails(data: WeatherModel, textColor: Color){
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = data.location.country, fontSize = 18.sp, color = textColor)
             }
+        }
+        Spacer(modifier = Modifier.padding(vertical = 8.dp))
+        Row {
+            Text(text = "Local Time: ${data.location.localtime.split(" ")[1]} $timePeriod")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
