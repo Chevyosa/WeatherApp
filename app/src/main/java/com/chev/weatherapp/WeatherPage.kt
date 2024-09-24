@@ -1,5 +1,6 @@
 package com.chev.weatherapp
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,7 +28,6 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,9 +55,12 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
 import com.chev.weatherapp.api.NetworkResponse
+import com.chev.weatherapp.api.SearchModelItem
+import com.chev.weatherapp.api.SearchNetworkResponse
 import com.chev.weatherapp.api.WeatherModel
 import com.chev.weatherapp.ui.theme.Orange
 import java.text.SimpleDateFormat
@@ -65,7 +68,7 @@ import java.util.Calendar
 import java.util.Locale
 
 @Composable
-fun WeatherPage(viewModel: WeatherViewModel){
+fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
 
     var city by remember {
         mutableStateOf(" ")
@@ -84,7 +87,7 @@ fun WeatherPage(viewModel: WeatherViewModel){
     }
 
     val weatherResult = viewModel.weatherResult.observeAsState()
-    val cityList = viewModel.cityList.observeAsState()
+    val cityList = searchModel.cityList.observeAsState()
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val (gradientBrush, textColor, timePeriod) = remember(weatherResult.value) {
@@ -167,7 +170,7 @@ fun WeatherPage(viewModel: WeatherViewModel){
                     onValueChange = {
                         city = it
                         expanded = true
-                        viewModel.searchCities(it)},
+                        searchModel.searchCities(it)},
                     label = {
                         Text(text = "Search for Any Location", color = Color.Black)
                     },
@@ -201,22 +204,28 @@ fun WeatherPage(viewModel: WeatherViewModel){
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
-                    .width(textFieldSize.width.dp)
-                    .zIndex(2f),
+                    .width(textFieldSize.width.dp),
                 elevation = CardDefaults.cardElevation(10.dp)
             ){
                 when (val result = cityList.value) {
-                    is NetworkResponse.Loading -> {
+                    is SearchNetworkResponse.Loading -> {
                         CircularProgressIndicator(modifier = Modifier
                             .padding(16.dp)
                             .align(Alignment.CenterHorizontally))
                     }
-                    is NetworkResponse.Success -> {
-                        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                            val cities = result.data.location.name
-                            val countries = result.data.location.country
-                            items(listOf(cities)) { cityName ->
-                                CityItems(title = cityName, countries, viewModel) { selectedCity ->
+                    is SearchNetworkResponse.Success -> {
+                        Log.d("API Response at UI", result.data.toString())
+                        val cityData: List<SearchModelItem> = if (city.isBlank()) {
+                            result.data
+                        } else {
+                            result.data.filter { it.name.contains(city, ignoreCase = true) }
+                        }
+
+                        Log.d("UI with API Response", "Rendering ${cityData.size} items")
+
+                        LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 120.dp)) {
+                            items(cityData) { cityItem ->
+                                CityItems(city = cityItem.name, country = cityItem.country, searchModel) { selectedCity ->
                                     city = selectedCity
                                     expanded = false
                                     viewModel.getData(selectedCity)
@@ -224,9 +233,8 @@ fun WeatherPage(viewModel: WeatherViewModel){
                                 }
                             }
                         }
-
                     }
-                    is NetworkResponse.Error -> {
+                    is SearchNetworkResponse.Error -> {
                         Text(
                             text = result.message,
                             color = Color.Red,
@@ -234,7 +242,7 @@ fun WeatherPage(viewModel: WeatherViewModel){
                         )
                     }
                     else -> {
-                        // Jika tidak ada state
+                        Text(text = "Error Wak")
                     }
                 }
             }
@@ -257,17 +265,17 @@ fun WeatherPage(viewModel: WeatherViewModel){
 
 @Composable
 fun CityItems(
-    title: String,
+    city: String,
     country: String,
-    viewModel: WeatherViewModel,
+    searchModel: SearchViewModel,
     onSelect: (String) -> Unit
 ){
     Column(
         modifier = Modifier
-            .clickable { onSelect(title) }
+            .clickable { onSelect(city) }
             .padding(20.dp)
     ){
-        Text(text = "${title}, ${country}", fontSize = 16.sp)
+        Text(text = "${city}, ${country}", fontSize = 16.sp)
     }
 }
 

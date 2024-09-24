@@ -22,11 +22,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val weatherViewModel = ViewModelProvider(this)[WeatherViewModel::class.java]
+        val searchViewModel = ViewModelProvider(this)[SearchViewModel::class.java]
 
         setContent {
             WeatherAppTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background){
-                    WeatherPage(weatherViewModel)
+                    WeatherPage(weatherViewModel, searchViewModel)
                 }
             }
         }
