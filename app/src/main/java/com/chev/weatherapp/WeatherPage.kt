@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -137,7 +138,8 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(horizontal = 16.dp)
+            .systemBarsPadding()
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -157,7 +159,6 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(top = 40.dp)
             ){
                 TextField(
                     modifier = Modifier
@@ -284,7 +285,7 @@ fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 16.dp)
             .fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
