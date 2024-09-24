@@ -224,7 +224,9 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
 
                         Log.d("UI with API Response", "Rendering ${cityData.size} items")
 
-                        LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 120.dp)) {
+                        LazyColumn(modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 120.dp)) {
                             items(cityData) { cityItem ->
                                 CityItems(city = cityItem.name, country = cityItem.country, searchModel) { selectedCity ->
                                     city = selectedCity
@@ -293,28 +295,34 @@ fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
         Row(
             modifier = Modifier
                 .padding(top = 8.dp)
+                .padding(horizontal = 8.dp)
                 .border(width = 1.dp, color = textColor, shape = RoundedCornerShape(16.dp)),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
+            verticalAlignment = Alignment.CenterVertically
         ){
             Row(
                 modifier = Modifier
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.Bottom
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(30.dp),
                     imageVector = Icons.Default.LocationOn,
                     contentDescription ="Location Icon" ,
                     tint = textColor
                 )
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(text = data.location.name, fontSize = 30.sp, color = textColor)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = data.location.country, fontSize = 18.sp, color = textColor)
             }
         }
-        Spacer(modifier = Modifier.padding(vertical = 8.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(modifier = Modifier.padding(4.dp)){
+            Row{
+                Text(text = "${data.location.region}, ${data.location.country}", color = textColor, fontSize = 20.sp, textAlign = TextAlign.Center)
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
         Row {
             Text(text = "Local Time: ${data.location.localtime.split(" ")[1]} $timePeriod", color = textColor)
         }
