@@ -136,8 +136,7 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .systemBarsPadding()
+            .padding(horizontal = 16.dp, vertical = 16.dp)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
