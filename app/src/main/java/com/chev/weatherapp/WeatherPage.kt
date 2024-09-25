@@ -1,6 +1,5 @@
 package com.chev.weatherapp
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -56,9 +56,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.toSize
-import androidx.compose.ui.zIndex
 import com.chev.weatherapp.api.NetworkResponse
 import com.chev.weatherapp.api.SearchModelItem
 import com.chev.weatherapp.api.SearchNetworkResponse
@@ -72,7 +70,7 @@ import java.util.Locale
 fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
 
     var city by remember {
-        mutableStateOf(" ")
+        mutableStateOf("")
     }
 
     var textFieldSize by remember {
@@ -97,7 +95,7 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
                 val localTimeString = (weatherResult.value as NetworkResponse.Success).data.location.localtime
                 val hour = getHourFromLocalTime(localTimeString)
                 when (hour) {
-                    in 6..11 -> {
+                    in 5..11 -> {
                         Triple(
                             Brush.linearGradient(colors = listOf(Color.Cyan, Color.Blue)),
                             Color.Black,
@@ -215,18 +213,15 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
                             .align(Alignment.CenterHorizontally))
                     }
                     is SearchNetworkResponse.Success -> {
-                        Log.d("API Response at UI", result.data.toString())
                         val cityData: List<SearchModelItem> = if (city.isBlank()) {
                             result.data
                         } else {
                             result.data.filter { it.name.contains(city, ignoreCase = true) }
                         }
-
-                        Log.d("UI with API Response", "Rendering ${cityData.size} items")
-
                         LazyColumn(modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(max = 120.dp)) {
+                            .heightIn(max = 60.dp)
+                        ){
                             items(cityData) { cityItem ->
                                 CityItems(city = cityItem.name, country = cityItem.country, searchModel) { selectedCity ->
                                     city = selectedCity
@@ -250,7 +245,6 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
                 }
             }
         }
-
         when(val result = weatherResult.value){
             is NetworkResponse.Error -> {
                 Text(text = result.message, color = textColor)
@@ -275,10 +269,11 @@ fun CityItems(
 ){
     Column(
         modifier = Modifier
+            .fillMaxWidth()
             .clickable { onSelect(city) }
             .padding(20.dp)
     ){
-        Text(text = "${city}, ${country}", fontSize = 16.sp)
+        Text(text = "$city, $country", fontSize = 16.sp)
     }
 }
 
@@ -316,13 +311,13 @@ fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
                 Text(text = data.location.name, fontSize = 30.sp, color = textColor)
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         Box(modifier = Modifier.padding(4.dp)){
             Row{
                 Text(text = "${data.location.region}, ${data.location.country}", color = textColor, fontSize = 20.sp, textAlign = TextAlign.Center)
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Row {
             Text(text = "Local Time: ${data.location.localtime.split(" ")[1]} $timePeriod", color = textColor)
         }
@@ -352,8 +347,14 @@ fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
-        ) {
+                .padding(horizontal = 8.dp),
+            colors = CardColors(
+                contentColor = Color.Black,
+                disabledContentColor = Color.Transparent,
+                containerColor = Color.White,
+                disabledContainerColor = Color.Transparent
+            )
+        ){
             Column(modifier = Modifier.fillMaxWidth()){
                 Row(
                     modifier = Modifier.fillMaxWidth(),
