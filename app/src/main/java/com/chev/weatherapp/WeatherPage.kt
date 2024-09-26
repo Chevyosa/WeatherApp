@@ -136,8 +136,7 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 16.dp)
-            .systemBarsPadding()
+            .padding(start = 24.dp, end = 8.dp, top = 8.dp,  bottom = 64.dp)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -345,7 +344,7 @@ fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 48.dp),
+                .padding(horizontal = 8.dp),
             colors = CardColors(
                 contentColor = Color.Black,
                 disabledContentColor = Color.Transparent,
