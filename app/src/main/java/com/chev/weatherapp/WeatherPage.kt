@@ -137,6 +137,7 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 16.dp)
+            .systemBarsPadding()
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -340,13 +341,11 @@ fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
             fontSize = 20.sp,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier
-            .height(16.dp)
-            .weight(1f))
+        Spacer(modifier = Modifier.weight(1f))
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 8.dp, vertical = 48.dp),
             colors = CardColors(
                 contentColor = Color.Black,
                 disabledContentColor = Color.Transparent,

@@ -18,7 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
-import com.chev.weatherapp.components.BottomNavigationBar
+import com.chev.weatherapp.components.BottomNavigation
 import com.chev.weatherapp.ui.theme.WeatherAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -34,41 +34,42 @@ class MainActivity : ComponentActivity() {
             WeatherAppTheme {
                 var selectedIndex by remember { mutableIntStateOf(0) }
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background){
-                    Scaffold(
-                        bottomBar = {
-                            BottomNavigationBar(
-                                selectedIndex = selectedIndex,
-                                onItemSelected = { index ->
-                                    selectedIndex = index
-                                }
-                            )
-                        },
-                        modifier = Modifier
-                            .systemBarsPadding()
-                    ){ innerPadding ->
-                        when (selectedIndex) {
-                            0 -> {
-                                Surface(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(innerPadding),
-                                    color = MaterialTheme.colorScheme.background
-                                ) {
-                                    HomePage()
-                                }
-                            }
-                            1 -> {
-                                Surface(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(innerPadding),
-                                    color = MaterialTheme.colorScheme.background
-                                ) {
-                                    WeatherPage(weatherViewModel, searchViewModel)
-                                }
-                            }
-                        }
-                    }
+                    BottomNavigation()
+//                    Scaffold(
+//                        bottomBar = {
+//                            BottomNavigationBar(
+//                                selectedIndex = selectedIndex,
+//                                onItemSelected = { index ->
+//                                    selectedIndex = index
+//                                }
+//                            )
+//                        },
+//                        modifier = Modifier
+//                            .systemBarsPadding()
+//                    ){ innerPadding ->
+//                        when (selectedIndex) {
+//                            0 -> {
+//                                Surface(
+//                                    modifier = Modifier
+//                                        .fillMaxSize()
+//                                        .padding(innerPadding),
+//                                    color = MaterialTheme.colorScheme.background
+//                                ) {
+//                                    HomePage()
+//                                }
+//                            }
+//                            1 -> {
+//                                Surface(
+//                                    modifier = Modifier
+//                                        .fillMaxSize()
+//                                        .padding(innerPadding),
+//                                    color = MaterialTheme.colorScheme.background
+//                                ) {
+//                                    WeatherPage(weatherViewModel, searchViewModel)
+//                                }
+//                            }
+//                        }
+//                    }
                 }
             }
         }
