@@ -53,7 +53,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.toSize
@@ -129,14 +131,14 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(brush = gradientBrush)
+            .background(Color.White)
             .padding(16.dp)
     )
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 24.dp, end = 8.dp, top = 8.dp,  bottom = 64.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 64.dp)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -160,7 +162,7 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
                 TextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(10.dp, RoundedCornerShape(20.dp))
+                        .shadow(10.dp, RoundedCornerShape(24.dp))
                         .onGloballyPositioned { coordinates ->
                             textFieldSize = coordinates.size.toSize()
                         },
@@ -183,7 +185,7 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
                         focusedContainerColor = Color.White,
                         unfocusedContainerColor = Color.White,
                     ),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(24.dp),
                     trailingIcon = {
                         IconButton(onClick = {
                             viewModel.getData(city)
@@ -252,7 +254,7 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
                 CircularProgressIndicator()
             }
             is NetworkResponse.Success -> {
-                WeatherDetails(data = result.data, textColor, timePeriod)
+                WeatherDetails(data = result.data, timePeriod)
             }
             null -> {}
         }
@@ -277,7 +279,7 @@ fun CityItems(
 }
 
 @Composable
-fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
+fun WeatherDetails(data: WeatherModel, timePeriod: String){
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -289,8 +291,7 @@ fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
         Row(
             modifier = Modifier
                 .padding(top = 8.dp)
-                .padding(horizontal = 8.dp)
-                .border(width = 1.dp, color = textColor, shape = RoundedCornerShape(16.dp)),
+                .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
@@ -304,31 +305,22 @@ fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
                     modifier = Modifier.size(30.dp),
                     imageVector = Icons.Default.LocationOn,
                     contentDescription ="Location Icon" ,
-                    tint = textColor
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(text = data.location.name, fontSize = 30.sp, color = textColor)
+                Text(text = data.location.name, fontSize = 30.sp, color = Color.Black)
             }
         }
         Spacer(modifier = Modifier.height(12.dp))
         Box(modifier = Modifier.padding(4.dp)){
             Row{
-                Text(text = "${data.location.region}, ${data.location.country}", color = textColor, fontSize = 20.sp, textAlign = TextAlign.Center)
+                Text(text = "${data.location.region}, ${data.location.country}", color = Color.Black, fontSize = 20.sp, textAlign = TextAlign.Center)
             }
         }
         Spacer(modifier = Modifier.height(4.dp))
         Row {
-            Text(text = "Local Time: ${data.location.localtime.split(" ")[1]} $timePeriod", color = textColor)
+            Text(text = "Local Time: ${data.location.localtime.split(" ")[1]} $timePeriod", color = Color.Black)
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "${data.current.temp_c}°c",
-            fontSize = 56.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            color = textColor
-        )
         AsyncImage(
             modifier = Modifier.size(160.dp),
             model = "https:${data.current.condition.icon}".replace("64x64", "128x128"),
@@ -336,15 +328,23 @@ fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
         )
         Text(
             text = data.current.condition.text,
-            color = textColor,
+            color = Color.Black,
             fontSize = 20.sp,
             textAlign = TextAlign.Center
         )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "${data.current.temp_c}°c",
+            fontSize = 48.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            color = Color.Black
+        )
         Spacer(modifier = Modifier.weight(1f))
+        Text(text = "___")
         Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+                .fillMaxWidth(),
             colors = CardColors(
                 contentColor = Color.Black,
                 disabledContentColor = Color.Transparent,
@@ -357,15 +357,9 @@ fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ){
-                    WeatherKeyValue(key = "Humidity", value = data.current.humidity)
-                    WeatherKeyValue(key = "Wind Speed", value = "${data.current.wind_kph} Km/h")
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ){
-                    WeatherKeyValue(key = "UV", value = data.current.uv)
-                    WeatherKeyValue(key = "Feels Like", value = "${data.current.feelslike_c}°c")
+                    WeatherKeyValue(icon = R.drawable.ic_humidity, key = "Humidity", value = "${data.current.humidity}%")
+                    WeatherKeyValue(icon = R.drawable.ic_wind_speed, key = "Wind Speed", value = "${data.current.wind_kph} Km/h")
+                    WeatherKeyValue(icon = R.drawable.ic_feels_like, key = "Feels Like", value = "${data.current.feelslike_c}°c")
                 }
             }
         }
@@ -374,13 +368,22 @@ fun WeatherDetails(data: WeatherModel, textColor: Color, timePeriod: String){
 
 
 @Composable
-fun WeatherKeyValue(key: String, value: String){
+fun WeatherKeyValue(icon: Int, key : String, value: String){
     Column(
         modifier = Modifier.padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ){
-        Text(text = key, fontWeight = FontWeight.SemiBold, color = Color.Gray)
-        Text(text = value, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Icon(
+            imageVector = ImageVector.vectorResource(id = icon),
+            contentDescription = null,
+            tint = Color.Gray,
+            modifier = Modifier
+                .size(20.dp)
+        )
+        Text(text = key, fontWeight = FontWeight.SemiBold, fontSize = 12.sp, color = Color.Gray)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = value, fontSize = 20.sp, fontWeight = FontWeight.Medium)
     }
 }
 
