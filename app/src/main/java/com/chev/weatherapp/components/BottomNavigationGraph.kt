@@ -19,7 +19,7 @@ fun BottomNavigationGraph(
         startDestination = BottomNavigationScreen.Home.route
     ) {
         composable(route = BottomNavigationScreen.Home.route){
-            HomePage()
+            HomePage(viewModel = WeatherViewModel())
         }
         composable(route = BottomNavigationScreen.Search.route){
             WeatherPage(viewModel = WeatherViewModel(), searchModel = SearchViewModel())
