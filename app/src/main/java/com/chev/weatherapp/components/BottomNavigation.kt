@@ -90,7 +90,7 @@ fun RowScope.AddItem(
     val selected = currentDestination?.hierarchy?.any(){it.route == screen.route} == true
     val background = if (selected) Color.Black else Color.Transparent
     val contentColor = if (selected) Color.White else Color.Black
-    
+
     Box(
         modifier = Modifier
             .height(40.dp)
@@ -99,9 +99,15 @@ fun RowScope.AddItem(
             .background(background)
             .clickable(
                 onClick = {
-                    navController.navigate(screen.route) {
-                        popUpTo(navController.graph.findStartDestination().id)
-                        launchSingleTop = true
+                    if (currentDestination?.route != screen.route) {
+                        navController.navigate(screen.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            restoreState = true
+                            launchSingleTop = true
+                        }
+
                     }
                 }
             )

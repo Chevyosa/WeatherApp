@@ -73,28 +73,23 @@ fun HomePage(viewModel: WeatherViewModel) {
                 location = loc
                 loc?.let {
                     city = getCityNameFromLocation(context, it.latitude, it.longitude)
-                    Log.d("WeatherApp", "City Name: $city")
-                    Toast.makeText(context, "City: $city", Toast.LENGTH_SHORT).show()
                     if (city.isNotEmpty()) {
-                        Log.d("WeatherApp", "Fetching weather data for $city")
                         viewModel.getData(city)
                     }
                 } ?: run {
-                    errorMessage = "Lokasi tidak ditemukan."
-                    Log.e("WeatherApp", "Lokasi tidak ditemukan.")
-                    Toast.makeText(context, "Lokasi tidak ditemukan", Toast.LENGTH_SHORT).show()
+                    errorMessage = "Location Not Found"
+                    Toast.makeText(context, "Location Not Found", Toast.LENGTH_SHORT).show()
                 }
             }
         } catch (e: SecurityException) {
-            Toast.makeText(context, "Izin lokasi tidak diberikan", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Location Not Granted", Toast.LENGTH_SHORT).show()
         }
     }
 
     Column(
         modifier = Modifier
             .background(Color.White)
-            .fillMaxSize()
-            .padding(horizontal = 32.dp, vertical = 56.dp),
+            .padding(horizontal = 16.dp, vertical = 64.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -104,17 +99,22 @@ fun HomePage(viewModel: WeatherViewModel) {
                 Text(text = result.message, color = Color.Red)
             }
             NetworkResponse.Loading -> {
-                CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "Loading Data..")
-            }
-            is NetworkResponse.Success -> {
-                result.data?.let { weatherData ->
-                    HomeWeatherDetails(data = result.data, timePeriod = timePeriod)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Loading Data..")
                 }
             }
+            is NetworkResponse.Success -> {
+                HomeWeatherDetails(data = result.data, timePeriod = timePeriod)
+            }
             null -> {
-                Text(text = "Menunggu data...")
+                Text(text = "No Data Fetched")
             }
         }
     }
