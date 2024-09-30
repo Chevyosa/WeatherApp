@@ -28,22 +28,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.chev.weatherapp.CollectionViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun BottomNavigation() {
     val navController = rememberNavController()
+    val collectionViewModel = viewModel<CollectionViewModel>()
 
     Scaffold(
         bottomBar = { BottomBar(navController = navController) }
     ){
-        BottomNavigationGraph(navController = navController)
+        BottomNavigationGraph(navController = navController, collectionViewModel = collectionViewModel)
     }
 }
 
@@ -70,6 +73,7 @@ fun BottomBar(navController: NavHostController){
                 .height(64.dp)
                 .padding(vertical = 8.dp, horizontal = 16.dp)
                 .clip(RoundedCornerShape(24.dp))
+                .background(Color.White)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically

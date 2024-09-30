@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.chev.weatherapp.CollectionPage
+import com.chev.weatherapp.CollectionViewModel
 import com.chev.weatherapp.HomePage
 import com.chev.weatherapp.SearchViewModel
 import com.chev.weatherapp.WeatherPage
@@ -13,7 +14,8 @@ import com.chev.weatherapp.WeatherViewModel
 
 @Composable
 fun BottomNavigationGraph(
-    navController: NavHostController
+    navController: NavHostController,
+    collectionViewModel: CollectionViewModel
 ) {
     NavHost(
         navController = navController,
@@ -26,10 +28,11 @@ fun BottomNavigationGraph(
         composable(route = BottomNavigationScreen.Search.route){
             val weatherViewModel: WeatherViewModel = viewModel()
             val searchViewModel: SearchViewModel = viewModel()
-            WeatherPage(viewModel = weatherViewModel, searchModel = searchViewModel)
+            WeatherPage(viewModel = weatherViewModel, searchModel = searchViewModel, collectionViewModel = collectionViewModel)
         }
         composable(route = BottomNavigationScreen.Collection.route){
-            CollectionPage()
+            val weatherViewModel: WeatherViewModel = viewModel()
+            CollectionPage(collectionViewModel = collectionViewModel, viewModel = weatherViewModel)
         }
     }
 }

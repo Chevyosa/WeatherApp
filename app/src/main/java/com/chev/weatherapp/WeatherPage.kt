@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -56,10 +57,12 @@ import coil.compose.AsyncImage
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.toSize
+import com.chev.weatherapp.api.CollectionItem
 import com.chev.weatherapp.api.NetworkResponse
 import com.chev.weatherapp.api.SearchModelItem
 import com.chev.weatherapp.api.SearchNetworkResponse
@@ -70,7 +73,7 @@ import java.util.Calendar
 import java.util.Locale
 
 @Composable
-fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
+fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel, collectionViewModel: CollectionViewModel){
 
     var city by rememberSaveable {
         mutableStateOf("")
@@ -255,7 +258,7 @@ fun WeatherPage(viewModel: WeatherViewModel, searchModel: SearchViewModel){
                 CircularProgressIndicator()
             }
             is NetworkResponse.Success -> {
-                WeatherDetails(data = result.data, timePeriod)
+                WeatherDetails(data = result.data, timePeriod, collectionViewModel)
             }
             null -> {}
         }
@@ -280,18 +283,45 @@ fun CityItems(
 }
 
 @Composable
-fun WeatherDetails(data: WeatherModel, timePeriod: String){
+fun WeatherDetails(data: WeatherModel, timePeriod: String, collectionViewModel: CollectionViewModel){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp)
-            .fillMaxHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.weight(1f))
+            .padding(vertical = 16.dp, horizontal = 8.dp),
+        horizontalAlignment = Alignment.End
+    ){
         Row(
             modifier = Modifier
-                .padding(top = 8.dp)
+                .border(1.dp, Color.Black, RoundedCornerShape(24.dp))
+                .padding(vertical = 8.dp, horizontal = 12.dp)
+                .clickable {
+                    val collectionItem = CollectionItem(
+                        locationName = data.location.name,
+                        region = data.location.region,
+                        country = data.location.country,
+                        localTime = data.location.localtime,
+                        temperature = data.current.temp_c,
+                        iconUrl = "https:${data.current.condition.icon}".replace("64x64", "128x128")
+                    )
+                    collectionViewModel.addToCollection(collectionItem)
+                },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ){
+            Icon(painter = painterResource(id = R.drawable.ic_bottom_collection), contentDescription = "Add", Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(text = "Add to Collection", fontSize = 12.sp)
+        }
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.weight(0.125f))
+        Row(
+            modifier = Modifier
                 .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
